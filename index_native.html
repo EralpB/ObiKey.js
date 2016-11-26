@@ -1,0 +1,25 @@
+<html>
+<head>
+<script type="text/javascript" src="https://rawgit.com/ricmoo/aes-js/master/index.js"></script>
+<script src="qrcode.min.js"></script>
+<script src="obi_client.js"></script>
+</head>
+<body>
+<form>
+<input type="email" name="email">
+<input type="password" name="password">
+<button type="submit"></button>
+</form>
+<div id="qr">
+	
+</div>
+<button type="button" id="qrbutton">Open ObiKey</div>
+
+<script>
+//window.location.hostname
+ObiKey.showQR("example.com","qr", ["email", "password"], function(user_info){
+	alert(JSON.stringify(user_info));
+});
+</script>
+</body>
+</html>

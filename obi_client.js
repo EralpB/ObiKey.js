@@ -5,7 +5,7 @@
     var text = "";
     var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-    for( var i=0; i < 50; i++ )
+    for( var i=0; i < 20; i++ )
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     return text;
@@ -14,6 +14,7 @@
     function define_obikey(){
         var ObiKey = {};
         var key_256;
+        var key_256_str;
         var listenId;
         var ready = false;
         var myjson;
@@ -24,7 +25,9 @@
             this.myjson = {};
             this.listenId = makeid(); 
             this.key_256 = new Uint8Array(32);
+
             window.crypto.getRandomValues(this.key_256);
+            this.key_256_str = aesjs.util.convertBytesToString(this.key_256, 'hex')
             this.ready = true;
         }
 
@@ -72,7 +75,7 @@
         ObiKey.showQR = function(title, qrSelector, permissions, success_callback){
             this.setup();
             
-            this.myjson = {version:1, title: title, listenId: this.listenId, key: this.key_256, permissions:permissions};
+            this.myjson = {version:1, title: title, listenId: this.listenId, key: this.key_256_str, permissions:permissions};
             console.log(this.myjson);
             var qr = new QRCode(document.getElementById(qrSelector), 
                 {   text:JSON.stringify(this.myjson),
@@ -93,6 +96,7 @@
                 console.log(link_data.length);
                 var complete_url = "obikey://data?d="+link_data;
                 console.log(complete_url.indexOf('data?d='));
+                return;
             document.getElementById(buttonSelector).addEventListener("click", function(e) {
                 
                 window.open(complete_url);

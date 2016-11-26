@@ -1,25 +1,141 @@
-<html>
-<head>
-<script type="text/javascript" src="https://rawgit.com/ricmoo/aes-js/master/index.js"></script>
-<script src="qrcode.min.js"></script>
-<script src="obi_client.js"></script>
-</head>
-<body>
-<form>
-<input type="email" name="email">
-<input type="password" name="password">
-<button type="submit"></button>
-</form>
-<div id="qr">
-	
-</div>
-<button type="button" id="qrbutton">Open ObiKey</div>
+<!DOCTYPE html>
+<html lang="en">
 
-<script>
-//window.location.hostname
-ObiKey.showQR("example.com","qr", ["email", "password"], function(user_info){
-	alert(JSON.stringify(user_info));
-});
-</script>
-</body>
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Example Login</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:400,100,300,500">
+        <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="assets/font-awesome/css/font-awesome.min.css">
+		<link rel="stylesheet" href="assets/css/form-elements.css">
+        <link rel="stylesheet" href="assets/css/style.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <!-- Favicon and touch icons -->
+        <link rel="shortcut icon" href="assets/ico/favicon.png">
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
+        <style>
+        img{
+            margin: 0 auto;
+        }
+        </style>
+
+        <script type="text/javascript" src="https://rawgit.com/ricmoo/aes-js/master/index.js"></script>
+    <script src="qrcode.min.js"></script>
+    <script src="obi_client.js"></script>
+
+    </head>
+
+    <body>
+
+        <!-- Top content -->
+        <div class="top-content">
+        	
+            <div class="inner-bg">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-8 col-sm-offset-2 text">
+                            <h1><strong>Example</strong> Login Form</h1>
+                            <div class="description">
+                            	<p>
+	                            	Welcome to example.com, please login to continue.
+                            	</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-sm-offset-3 form-box">
+                        	<div class="form-top">
+                        		<div class="form-top-left">
+                        			<h3>Login to our site</h3>
+                            		<p>Enter your email and password to log on:</p>
+                        		</div>
+                        		<div class="form-top-right">
+                        			<i class="fa fa-key"></i>
+                        		</div>
+                            </div>
+                            <div class="form-bottom">
+			                    <form role="form" action="" method="post" class="login-form">
+			                    	<div class="form-group">
+			                    		<label class="sr-only" for="form-email">Email</label>
+			                        	<input type="email" name="form-email" placeholder="example@gmail.com" class="form-email form-control" id="form-email">
+			                        </div>
+			                        <div class="form-group">
+			                        	<label class="sr-only" for="form-password">Password</label>
+			                        	<input type="password" name="form-password" placeholder="Password..." class="form-password form-control" id="form-password">
+			                        </div>
+			                        <button type="submit" id="signinbutton" class="btn" disabled="disabled">Sign in!</button>
+                                    <br><br>
+                                    <button type="button" id="obibutton" class="btn">
+                                        <i class="fa fa-qrcode"></i>
+                                    ObiKey</button>
+                                    <div id="obiqr" style="margin: 5px auto;"></div>
+                                    
+			                    </form>
+		                    </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-sm-offset-3 social-login">
+                        	<h3>...or login with:</h3>
+                        	<div class="social-login-buttons">
+	                        	<a class="btn btn-link-1 btn-link-1-facebook" href="#">
+	                        		<i class="fa fa-facebook"></i> Facebook
+	                        	</a>
+	                        	<a class="btn btn-link-1 btn-link-1-twitter" href="#">
+	                        		<i class="fa fa-twitter"></i> Twitter
+	                        	</a>
+	                        	<a class="btn btn-link-1 btn-link-1-google-plus" href="#">
+	                        		<i class="fa fa-google-plus"></i> Google Plus
+	                        	</a>
+                        	</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+
+        <!-- Javascript -->
+        <script src="assets/js/jquery-1.11.1.min.js"></script>
+        <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+        <script src="assets/js/jquery.backstretch.min.js"></script>
+        <script src="assets/js/scripts.js"></script>
+        
+        <!--[if lt IE 10]>
+            <script src="assets/js/placeholder.js"></script>
+        <![endif]-->
+
+        <script>
+        //window.location.hostname
+        $("#obibutton").click(function(){
+            $("#obibutton").unbind();
+            $("#obibutton").attr('disabled', 'disabled');
+            ObiKey.showQR("example.com","obiqr", ["email", "password"], function(user_info){
+                //alert(JSON.stringify(user_info));
+                $("#form-email").val(user_info['email']);
+                $("#form-password").val(user_info['password']);
+                $("#signinbutton").removeAttr('disabled');
+            });
+        });
+        
+        </script>
+
+    </body>
+
 </html>
