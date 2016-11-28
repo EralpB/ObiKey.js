@@ -72,6 +72,38 @@
         oReq.send();
     }
 
+    ObiKey.showQRWithOptions = function(options, success_callback, error_callback){
+        if(!('title' in options) || 
+            !('permissions' in options) ||
+            !('qrSelectorId' in options)){
+            error_callback("Wrong arguments");
+            return;
+        }
+        this.setup();
+        this.myjson = {version:1,
+            title: options['title'],
+            listenId: this.listenId,
+            key: this.key_256_str,
+            permissions:options['permissions']};
+
+        if('token' in options){
+            this.myjson['t'] = options['token'];
+        }
+
+        var qrSelector = options['qrSelectorId'];
+
+        var qr = new QRCode(document.getElementById(options['qrSelectorId']), 
+                {   text:JSON.stringify(this.myjson),
+                    correctLevel : QRCode.CorrectLevel.L
+                });
+
+        this.sendLongPolling(function(user_info){
+                success_callback(user_info);
+                document.getElementById(qrSelector).getElementsByTagName('img')[0].src = "https://media.giphy.com/media/eoxomXXVL2S0E/giphy.gif";
+            });
+        
+    }
+
         ObiKey.showQR = function(title, qrSelector, permissions, success_callback){
             this.setup();
             
