@@ -31,9 +31,9 @@
             this.ready = true;
         }
 
-        ObiKey.decode = function(encrypted_info){
+        ObiKey.decode = function(encrypted_info, ctr){
             var buffer = new Uint16Array(encrypted_info["data"]);
-            var aesCtr = new aesjs.ModeOfOperation.ctr(this.key_256);
+            var aesCtr = new aesjs.ModeOfOperation.ctr(this.key_256, new aes.Counter(ctr));
             var decryptedBytes = aesCtr.decrypt(buffer);
 
             var decryptedText = aesjs.util.convertBytesToString(decryptedBytes);
@@ -56,7 +56,7 @@
                 result = JSON.parse(xhr.responseText);
             }
             
-            var user_info = obikey.decode(result.encrypted_info);
+            var user_info = obikey.decode(result.encrypted_info, result.ctr);
             console.log(user_info);
             success(user_info);
 
