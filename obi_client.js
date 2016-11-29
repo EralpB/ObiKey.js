@@ -33,14 +33,14 @@
 
         ObiKey.decode = function(encrypted_info, ctr){
             var buffer = new Uint16Array(encrypted_info["data"]);
-            var aesCtr = new aesjs.ModeOfOperation.ctr(this.key_256, new aes.Counter(ctr));
+            var aesCtr = new aesjs.ModeOfOperation.ctr(this.key_256, new aesjs.Counter(ctr));
             var decryptedBytes = aesCtr.decrypt(buffer);
-
             var decryptedText = aesjs.util.convertBytesToString(decryptedBytes);
+            
             return JSON.parse(decryptedText);
         }
 
-        ObiKey.sendLongPolling = function(success){
+        ObiKey.sendLongPolling = function(success, error_callback){
             var obikey = this;
         console.log("sending long polling..");
         var bustCache = '?p=' + new Date().getTime();
@@ -55,15 +55,28 @@
             } else {
                 result = JSON.parse(xhr.responseText);
             }
-            
+            console.log('result:');
+            console.log(result);
+
+            //check hmac
+            var shaObj = new jsSHA("SHA-256", "BYTES");
+            shaObj.setHMACKey("obikey", "TEXT");
+            shaObj.update(result.encrypted_info);
+            var hmac = shaObj.getHMAC("HEX");
+            if(hmac != result.hmac){
+                console.log("HMAC Error");
+                error_callback("HMAC Error");
+                return;
+            }
             var user_info = obikey.decode(result.encrypted_info, result.ctr);
+            console.log("user info:");
             console.log(user_info);
             success(user_info);
 
         };
         oReq.ontimeout = function(){
             console.log("timeout");
-            this.sendLongPolling();
+            obikey.sendLongPolling(success, error_callback);
         }
         
         oReq.open('GET', "http://52.59.25.79/listen/"+this.listenId + bustCache, true);
@@ -100,7 +113,7 @@
         this.sendLongPolling(function(user_info){
                 success_callback(user_info);
                 document.getElementById(qrSelector).getElementsByTagName('img')[0].src = "https://media.giphy.com/media/eoxomXXVL2S0E/giphy.gif";
-            });
+            }, (err)=> {console.log(err);});
         
     }
 
@@ -119,7 +132,7 @@
                 success_callback(user_info);
                 console.log(document.getElementById(qrSelector).getElementsByTagName('img')[0])
                 document.getElementById(qrSelector).getElementsByTagName('img')[0].src = "https://media.giphy.com/media/eoxomXXVL2S0E/giphy.gif";
-            });
+            }, (err)=> {console.log(err);});
         }
 
         ObiKey.addButton = function(buttonSelector){
