@@ -18,6 +18,7 @@
         var listenId;
         var ready = false;
         var myjson;
+        var my_qr;
 
         ObiKey.setup = function(){
             if(this.ready){return;}
@@ -31,12 +32,28 @@
             this.ready = true;
         }
 
+        ObiKey.clearQR = function(){
+            if(this.my_qr && (typeof this.my_qr.clear) === 'function'){
+                console.log("clearing QR");
+                this.my_qr.clear();
+            }
+        }
+
+        ObiKey.reset = function(){
+            this.ready = false;
+            this.clearQR();
+            this.setup();
+        }
+
         ObiKey.decode = function(encrypted_info, ctr){
             var buffer = new Uint16Array(encrypted_info["data"]);
-            var aesCtr = new aesjs.ModeOfOperation.ctr(this.key_256, new aesjs.Counter(ctr));
+            console.log("buffer:");
+            console.log(buffer);
+            var aesCtr = new aesjs.ModeOfOperation.ctr(this.key_256, new aesjs.Counter(parseInt(ctr)));
             var decryptedBytes = aesCtr.decrypt(buffer);
             var decryptedText = aesjs.util.convertBytesToString(decryptedBytes);
-            
+            console.log("decryptedText:");
+            console.log(decryptedText);
             return JSON.parse(decryptedText);
         }
 
@@ -59,10 +76,16 @@
             console.log(result);
 
             //check hmac
-            var shaObj = new jsSHA("SHA-256", "BYTES");
-            shaObj.setHMACKey("obikey", "TEXT");
-            shaObj.update(result.encrypted_info);
+
+            var shaObj = new jsSHA("SHA-256", "HEX");
+            shaObj.setHMACKey('obikey', "TEXT");
+            var buffer = new Uint16Array(result.encrypted_info["data"]);
+            shaObj.update(aesjs.util.convertBytesToString(buffer, "HEX"));
             var hmac = shaObj.getHMAC("HEX");
+
+            console.log("calculated hmac:"+hmac);
+            console.log("request    hmac:"+result.hmac);
+
             if(hmac != result.hmac){
                 console.log("HMAC Error");
                 error_callback("HMAC Error");
@@ -79,7 +102,7 @@
             obikey.sendLongPolling(success, error_callback);
         }
         
-        oReq.open('GET', "http://52.59.25.79/listen/"+this.listenId + bustCache, true);
+        oReq.open('GET', "https://aurora.obikey.com/listen/"+this.listenId + bustCache, true);
         oReq.responseType = 'json';
         oReq.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         oReq.send();
@@ -104,15 +127,15 @@
         }
 
         var qrSelector = options['qrSelectorId'];
-
-        var qr = new QRCode(document.getElementById(options['qrSelectorId']), 
+        this.clearQR();
+        document.getElementById(options['qrSelectorId']).innerHTML = '';
+        this.my_qr = new QRCode(document.getElementById(options['qrSelectorId']), 
                 {   text:JSON.stringify(this.myjson),
                     correctLevel : QRCode.CorrectLevel.L
                 });
-
         this.sendLongPolling(function(user_info){
                 success_callback(user_info);
-                document.getElementById(qrSelector).getElementsByTagName('img')[0].src = "https://media.giphy.com/media/eoxomXXVL2S0E/giphy.gif";
+                // document.getElementById(qrSelector).getElementsByTagName('img')[0].src = "https://media.giphy.com/media/eoxomXXVL2S0E/giphy.gif";
             }, (err)=> {console.log(err);});
         
     }
@@ -122,7 +145,9 @@
             
             this.myjson = {version:1, title: title, listenId: this.listenId, key: this.key_256_str, permissions:permissions};
             console.log(this.myjson);
-            var qr = new QRCode(document.getElementById(qrSelector), 
+            this.clearQR();
+            document.getElementById(options['qrSelectorId']).innerHTML = '';
+            this.my_qr = new QRCode(document.getElementById(qrSelector), 
                 {   text:JSON.stringify(this.myjson),
                     correctLevel : QRCode.CorrectLevel.L
                 });
@@ -130,8 +155,8 @@
             this.sendLongPolling(function(user_info){
                 console.log("success");
                 success_callback(user_info);
-                console.log(document.getElementById(qrSelector).getElementsByTagName('img')[0])
-                document.getElementById(qrSelector).getElementsByTagName('img')[0].src = "https://media.giphy.com/media/eoxomXXVL2S0E/giphy.gif";
+                // console.log(document.getElementById(qrSelector).getElementsByTagName('img')[0])
+                // document.getElementById(qrSelector).getElementsByTagName('img')[0].src = "https://media.giphy.com/media/eoxomXXVL2S0E/giphy.gif";
             }, (err)=> {console.log(err);});
         }
 
@@ -153,6 +178,8 @@
     //define globally if it doesn't already exist
     if(typeof(Obikey) === 'undefined'){
         window.ObiKey = define_obikey();
+        
+
     }
     else{
         console.log("ObiKey already defined.");
